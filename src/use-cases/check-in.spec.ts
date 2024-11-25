@@ -2,6 +2,8 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './check-in'
 import { InMemoryCheckInsRepository } from '@/repositories/in-memory/in-memory-check-ins-repository'
 import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
+import { DuplicatedCheckInOnADayError } from './errors/duplicated-check-in-on-a-day'
+import { UserIsTooFarFromGymError } from './errors/user-is-too-far-from-gym-error'
 
 let checkInsRepository: InMemoryCheckInsRepository
 let gymsRepository: InMemoryGymsRepository
@@ -71,7 +73,7 @@ describe('Check In Use Case', () => {
         userLatitude: 0,
         userLongitude: 0,
       }),
-    ).rejects.toBeInstanceOf(Error)
+    ).rejects.toBeInstanceOf(DuplicatedCheckInOnADayError)
   })
 
   it('should not be able to check in a distant gym', async () => {
@@ -91,6 +93,6 @@ describe('Check In Use Case', () => {
         userLatitude: -23.5415,
         userLongitude: -46.6333,
       }),
-    ).rejects.toBeInstanceOf(Error)
+    ).rejects.toBeInstanceOf(UserIsTooFarFromGymError)
   })
 })
