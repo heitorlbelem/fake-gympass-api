@@ -1,15 +1,28 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './check-in'
 import { InMemoryCheckInsRepository } from '@/repositories/in-memory/in-memory-check-ins-repository'
+import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
+import { Decimal } from '@prisma/client/runtime/library'
 
 let checkInsRepository: InMemoryCheckInsRepository
+let gymsRepository: InMemoryGymsRepository
 let checkInUseCase: CheckInUseCase
 
 describe('Check In Use Case', () => {
   beforeEach(() => {
     checkInsRepository = new InMemoryCheckInsRepository()
-    checkInUseCase = new CheckInUseCase(checkInsRepository)
+    gymsRepository = new InMemoryGymsRepository()
+    checkInUseCase = new CheckInUseCase(checkInsRepository, gymsRepository)
     vi.useFakeTimers()
+
+    gymsRepository.items.push({
+      id: 'gym-id',
+      name: 'Gym Name',
+      latitude: new Decimal(0),
+      longitude: new Decimal(0),
+      description: 'Gym Description',
+      phone: '123456789',
+    })
   })
 
   afterEach(() => {
