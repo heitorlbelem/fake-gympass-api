@@ -16,7 +16,7 @@ describe('Check In Use Case', () => {
     vi.useFakeTimers()
 
     gymsRepository.items.push({
-      id: 'gym-id',
+      id: 'gym-1',
       name: 'Gym Name',
       latitude: new Decimal(0),
       longitude: new Decimal(0),
@@ -31,8 +31,10 @@ describe('Check In Use Case', () => {
 
   it('should be able to check in', async () => {
     const { checkIn } = await checkInUseCase.execute({
-      gymId: 'gym-id',
+      gymId: 'gym-1',
       userId: 'user-id',
+      userLatitude: 0,
+      userLongitude: 0,
     })
     expect(checkIn.id).toEqual(expect.any(String))
   })
@@ -40,13 +42,17 @@ describe('Check In Use Case', () => {
   it('should be able to check in twice but in different days', async () => {
     vi.setSystemTime(new Date('2024-11-25T10:00:00'))
     await checkInUseCase.execute({
-      gymId: 'gym-id',
+      gymId: 'gym-1',
       userId: 'user-id',
+      userLatitude: 0,
+      userLongitude: 0,
     })
     vi.setSystemTime(new Date('2024-11-26T10:00:00'))
     const { checkIn } = await checkInUseCase.execute({
-      gymId: 'gym-id',
+      gymId: 'gym-1',
       userId: 'user-id',
+      userLatitude: 0,
+      userLongitude: 0,
     })
     expect(checkIn.id).toEqual(expect.any(String))
   })
@@ -54,11 +60,38 @@ describe('Check In Use Case', () => {
   it('should not be able to check in twice in the same day', async () => {
     vi.setSystemTime(new Date('2024-11-25T10:00:00'))
     await checkInUseCase.execute({
-      gymId: 'gym-id',
+      gymId: 'gym-1',
       userId: 'user-id',
+      userLatitude: 0,
+      userLongitude: 0,
     })
     await expect(() =>
-      checkInUseCase.execute({ gymId: 'gym-id', userId: 'user-id' }),
+      checkInUseCase.execute({
+        gymId: 'gym-1',
+        userId: 'user-id',
+        userLatitude: 0,
+        userLongitude: 0,
+      }),
+    ).rejects.toBeInstanceOf(Error)
+  })
+
+  it('should not be able to check in a distant gym', async () => {
+    gymsRepository.items.push({
+      id: 'gym-2',
+      name: 'JS Gym',
+      latitude: new Decimal(-23.5505),
+      longitude: new Decimal(-46.6333),
+      description: '',
+      phone: '',
+    })
+
+    await expect(() =>
+      checkInUseCase.execute({
+        gymId: 'gym-2',
+        userId: 'user-id',
+        userLatitude: -23.5415,
+        userLongitude: -46.6333,
+      }),
     ).rejects.toBeInstanceOf(Error)
   })
 })
