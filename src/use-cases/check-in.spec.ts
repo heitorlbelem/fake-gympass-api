@@ -2,24 +2,23 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './check-in'
 import { InMemoryCheckInsRepository } from '@/repositories/in-memory/in-memory-check-ins-repository'
 import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
-import { Decimal } from '@prisma/client/runtime/library'
 
 let checkInsRepository: InMemoryCheckInsRepository
 let gymsRepository: InMemoryGymsRepository
 let checkInUseCase: CheckInUseCase
 
 describe('Check In Use Case', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     checkInsRepository = new InMemoryCheckInsRepository()
     gymsRepository = new InMemoryGymsRepository()
     checkInUseCase = new CheckInUseCase(checkInsRepository, gymsRepository)
     vi.useFakeTimers()
 
-    gymsRepository.items.push({
+    await gymsRepository.create({
       id: 'gym-1',
       name: 'Gym Name',
-      latitude: new Decimal(0),
-      longitude: new Decimal(0),
+      latitude: 0,
+      longitude: 0,
       description: 'Gym Description',
       phone: '123456789',
     })
@@ -76,11 +75,11 @@ describe('Check In Use Case', () => {
   })
 
   it('should not be able to check in a distant gym', async () => {
-    gymsRepository.items.push({
+    await gymsRepository.create({
       id: 'gym-2',
       name: 'JS Gym',
-      latitude: new Decimal(-23.5505),
-      longitude: new Decimal(-46.6333),
+      latitude: -23.5505,
+      longitude: -46.6333,
       description: '',
       phone: '',
     })
