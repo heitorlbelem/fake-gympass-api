@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
 import { AuthenticateUseCase } from './authenticate'
-import { hash } from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
 
 let usersRepository: InMemoryUsersRepository
@@ -17,7 +17,7 @@ describe('Authenticate Use Case', () => {
     await usersRepository.create({
       name: 'John Doe',
       email: 'john.doe@example.com',
-      password_hash: await hash('123456', 6),
+      password_hash: await bcrypt.hash('123456', 6),
     })
     const { user } = await authenticateUseCase.execute({
       email: 'john.doe@example.com',
@@ -30,7 +30,7 @@ describe('Authenticate Use Case', () => {
     await usersRepository.create({
       name: 'John Doe',
       email: 'john.doe@example.com',
-      password_hash: await hash('123456', 6),
+      password_hash: await bcrypt.hash('123456', 6),
     })
 
     await expect(() =>
@@ -45,7 +45,7 @@ describe('Authenticate Use Case', () => {
     await usersRepository.create({
       name: 'John Doe',
       email: 'john.doe@example.com',
-      password_hash: await hash('123456', 6),
+      password_hash: await bcrypt.hash('123456', 6),
     })
     await expect(() =>
       authenticateUseCase.execute({
